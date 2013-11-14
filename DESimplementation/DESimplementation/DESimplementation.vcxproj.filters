@@ -20,7 +20,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="keyFile.bin">
+    <Text Include="keyFile.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="message.txt">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>
