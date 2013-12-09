@@ -14,8 +14,7 @@ const int KEYS = 16;
 const string fileName = "keyFile.txt";
 const string messageName = "binMessage.txt";
 
-//char key[KEY_SIZE] = {0,1,1,1,1,0,0,0,0,0,1,0,1,1,1,0,1,0,0,0,1,1,0,1,0,1,0,1,1,0,0,1,0,1,1,1,1,0,0,0,0,0,1,0,1,1,1,0,1,0,0,0,1,1,0,1,0,1,0,1,1,0,0,1};
-char key[KEY_SIZE] = {0,0,0,1,0,0,1,1,0,0,1,1,0,1,0,0,0,1,0,1,0,1,1,1,0,1,1,1,1,0,0,1,1,0,0,1,1,0,1,1,1,0,1,1,1,1,0,0,1,1,0,1,1,1,1,1,1,1,1,1,0,0,0,1};
+char key[KEY_SIZE];
 
 char perm1[PERM_SIZE] = {57,49,41,33,25,17,9,1,58,50,42,34,26,18,10,2,59,51,43,35,27,19,11,3,60,52,44,36,63,55,47,39,31,23,15,7,62,54,46,38,30,22,14,6,61,53,45,37,29,21,13,5,28,20,12,4};
 char perm2[PERM_SIZE2] = {14,17,11,24,1,5,3,28,15,6,21,10,23,19,12,4,26,8,16,7,27,20,13,2,41,52,31,37,47,55,30,40,51,45,33,48,44,49,39,56,34,53,46,42,50,36,29,32};
@@ -38,11 +37,6 @@ char IPI[KEY_SIZE] = {40,8,48,16,56,24,64,32,
 					  33,1,41, 9,49,17,57,25};
 
 char messageExpansion[PERM_SIZE2] = {32,1,2,3,4,5,4,5,6,7,8,9,8,9,10,11,12,13,12,13,14,15,16,17,16,17,18,19,20,21,20,21,22,23,24,25,24,25,26,27,28,29,28,29,30,31,32,1};
-char message[KEY_SIZE] = {0,1,0,0,1,0,0,0,0,1,1,0,0,1,0,1,0,1,1,0,1,1,0,0,0,1,1,0,1,1,0,0,0,1,1,0,1,1,1,1,0,0,1,0,0,0,0,0,0,1,1,1,0,1,1,1,0,1,1,0,1,1,1,1};
-//char message[KEY_SIZE] = {0,0,0,0,0,0,0,1,0,0,1,0,0,0,1,1,0,1,0,0,0,1,0,1,0,1,1,0,0,1,1,1,1,0,0,0,1,0,0,1,1,0,1,0,1,0,1,1,1,1,0,0,1,1,0,1,1,1,1,0,1,1,1,1};
-//char ciphertext[KEY_SIZE] = {1,0,0,0,0,1,0,1,1,1,1,0,1,0,0,0,0,0,0,1,0,0,1,1,0,1,0,1,0,1,0,0,0,0,0,0,1,1,1,1,0,0,0,0,1,0,1,0,1,0,1,1,0,1,0,0,0,0,0,0,0,1,0,1};
-char ciphertext[KEY_SIZE] = {1,1,1,1,1,0,1,1,1,1,1,0,1,1,0,0,1,0,1,1,1,1,1,0,1,0,1,1,1,1,0,1,0,0,1,1,0,0,0,1,0,1,0,1,1,1,1,1,1,0,0,1,1,0,1,0,1,1,0,0,1,0,0,1};
-
 char messageP1[KEY_SIZE];
 char permute1[PERM_SIZE];
 char keys[KEYS][PERM_SIZE];
@@ -162,6 +156,42 @@ void convertToChar(char* output, char *input)
 		for (int j=0; j <8; j++)
 		{
 			output[i+j] = getBit(input[i/8],7-j);
+		}
+	}
+}
+
+char hextochar(char in)
+{
+	switch (tolower(in))
+	{
+		case '0': return 0;
+		case '1': return 1;
+		case '2': return 2;
+		case '3': return 3;
+		case '4': return 4;
+		case '5': return 5;
+		case '6': return 6;
+		case '7': return 7;
+		case '8': return 8;
+		case '9': return 9;
+		case 'a': return 10;
+		case 'b': return 11;
+		case 'c': return 12;
+		case 'd': return 13;
+		case 'e': return 14;
+		case 'f': return 15;
+		default: return 0;
+	}
+}
+
+void hexchartobinary(char *output, char *input)
+{
+	for (int i=0; i<64; i+=4)
+	{
+		char temp = hextochar(input[i/4]);
+		for (int j=0; j < 4; j++)
+		{
+			output[i+j] = getBit(temp,3-j);
 		}
 	}
 }
@@ -522,12 +552,53 @@ void decryption()
 	cout << endl;
 }
 
+void setKey()
+{
+	char messageRead[16];
+	int index = 0;
+	string file;
+	fstream keyStream;
+
+	while(true)
+	{
+		cout << "Input filename of key or 0 to quit" << endl;
+		cin >> file;
+		if (file == "0") return;
+		keyStream.open(file);
+		if (!keyStream.fail()) break;
+		cout << "Could not open file" << endl;
+	}
+
+	while (!keyStream.eof())
+	{
+		messageRead[index] = keyStream.get();
+		index++;
+		if (index == 16)
+		{
+			break;
+		}
+	}
+	if (index != 16)
+	{
+		cout << endl << "provided key is not long enough" << endl;
+	}
+	keyStream.close();
+	hexchartobinary(key,messageRead);
+	cout << endl << "Key read is: ";
+	for (int i=0; i < 64; i++)
+	{
+		cout << (int)key[i];
+	}
+	cout << endl;
+}
+
 int main()
 {
 	int input;
 	while(true)
 	{
-		cout << endl << "Menu" << endl << "0. Exit" << endl << "1.Encrypt" << endl << "2.Decrypt" << endl;
+		cout << endl << "Menu" << endl << "0. Exit" << endl << "1.Encrypt" << endl << "2.Decrypt" << endl 
+			<< "3.Set Key" << endl << "Choose an option:";
 		cin >> input;
 		if (input == 1)
 		{
@@ -537,66 +608,13 @@ int main()
 		{
 			decryption();
 		}
+		else if (input == 3)
+		{
+			setKey();
+		}
 		else
 			break;
 	}
-
-	/*
-
-
-	char messageRead[8];
-	char message[64];
-	char output[64];
-
-
-	//fstream fileStream(fileName, fstream::in);
-	int index = 0;
-	
-	fstream messageStream("message.txt", fstream::in);
-	fstream outStream("ct.txt", fstream::out);
-	index = 0;
-	while(true) 
-	{ 
-		if (messageStream.eof())
-		{
-			convertToChar(message,messageRead);
-			encrypt(message,key,output);
-			outStream << convertToString(output,64);
-			break;
-		}
-		messageRead[index] = messageStream.get();
-		index++;
-		if (index == 8)
-		{
-			convertToChar(message,messageRead);
-			encrypt(message,key,output);
-			outStream << convertToString(output,64);
-			index = 0;
-			memset( messageRead, 0, sizeof(char) * 8);
-		}
-	}
-	messageStream.close();	
-	outStream.close();
-
-	fstream cipherStream("ct.txt", fstream::in);
-	index = 0;
-	cout << "Message is:" << endl;
-	while (!cipherStream.eof())
-	{
-		messageRead[index] = cipherStream.get();
-		index++;
-		if (index == 8)
-		{
-			convertToChar(message,messageRead);
-			decrypt(message,key,output);
-			cout << convertToString(output,64);
-			index = 0;
-			memset( messageRead, 0, sizeof(char) * 8);
-		}
-	}	
-	cipherStream.close();
-	cout << endl;
-	*/
 	system("Pause");
 	return 0;
 }
