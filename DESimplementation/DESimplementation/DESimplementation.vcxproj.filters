@@ -26,5 +26,8 @@
     <Text Include="message.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="binMessage.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

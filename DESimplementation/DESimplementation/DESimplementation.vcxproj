@@ -79,6 +79,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="binMessage.txt" />
     <Text Include="keyFile.txt" />
     <Text Include="message.txt" />
   </ItemGroup>
